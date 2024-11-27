@@ -199,13 +199,17 @@ def matching_menu(ocr_df, collection):
     # for menu, price in menu_dict.items():
     #     print(menu, price)
 
-    matching_list = {}
+    matching_list = []
     for menu, price in menu_dict.items():
         matching = collection.query(
             query_texts=[f'{menu}'],
             n_results=1,
         )
         if matching['distances'][0][0] < 0.1:
-            matching_list[matching['ids'][0][0]] = price
+            matching_dict = {}
+            matching_dict['price'] = price
+            matching_dict['menuId'] = int(matching['ids'][0][0])
+
+            matching_list.append(matching_dict)
 
     return matching_list
