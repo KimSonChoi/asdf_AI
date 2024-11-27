@@ -4,4 +4,4 @@ from fastapi import UploadFile
 class Image(BaseModel):
     key: str = Field(..., title="Image Key")
     class Example:
-        url = "example.jpg"
+        url = "example123"

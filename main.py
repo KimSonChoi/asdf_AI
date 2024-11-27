@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from loguru import logger
 
-from router.menu_route import menu_router, get_connect_s3
+from router.menu_route import menu_router, get_connect_s3, get_connect_db
 
 from starlette.middleware.cors import CORSMiddleware
 
@@ -14,6 +14,8 @@ load_dotenv()
 async def lifespan(app: FastAPI):
     get_connect_s3()
     logger.info("S3 connected")
+    get_connect_db()
+    logger.info("DB connected")
     yield
 
 app = FastAPI(lifespan=lifespan)
