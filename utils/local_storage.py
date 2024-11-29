@@ -20,7 +20,7 @@ def connect_s3():
     return s3, bucket_name
 
 def upload_file_to_s3(s3, BUCKET_NAME, file_path, object_path):
-    s3.upload_file(file_path, BUCKET_NAME, object_path)
+    s3.upload_file(file_path, BUCKET_NAME, object_path, ExtraArgs={'ACL':'public-read'})
 
 def download_file_from_s3(s3, BUCKET_NAME, object_path, file_path):
     s3.download_file(BUCKET_NAME, object_path, file_path)
