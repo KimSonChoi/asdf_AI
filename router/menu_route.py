@@ -16,6 +16,7 @@ menu_router = APIRouter()
 
 DATA_DIR = os.getenv('DATA_DIR')
 OCR_DATA_DIR = os.getenv('OCR_DATA_DIR')
+STORAGE_ENDPOINT = os.getenv('NCP_STORAGE_ENDPOINT')
 
 s3 = None
 BUCKET_NAME = None
@@ -46,7 +47,13 @@ async def ocr_upload(image: Image = Depends()):
     ocr_df = image_to_df(image_key)
     image_figure(ocr_df, image_key)
     upload_file_to_s3(s3, BUCKET_NAME, result_path, f'{result_dir}{image_key}_result.jpg')
-    return {"message": "Image uploaded"}
+
+    storage_path = f'{STORAGE_ENDPOINT}/{BUCKET_NAME}/{result_dir}{image_key}_result.jpg'
+    response = {
+        "key": image_key,
+        "result_path": storage_path
+    }
+    return response
 
 
 @menu_router.get("/{image_key}")
