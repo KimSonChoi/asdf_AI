@@ -17,25 +17,26 @@ OCR_DATA_DIR = os.getenv('OCR_DATA_DIR')
 api_url = os.getenv('CLOVA_API_URL')
 secret_key = os.getenv('CLOVA_SECRET_KEY')
 
-request_json = {
-    'images': [
-        {
-            'format': 'jpg',
-            'name': 'demo'
-        }
-    ],
-    'requestId': str(uuid.uuid4()),
-    'version': 'V2',
-    'timestamp': int(round(time.time() * 1000))
-}
+def image_to_df(image_key, extension):
+    request_json = {
+        'images': [
+            {
+                'format': f'{extension}',
+                'name': 'demo'
+            }
+        ],
+        'requestId': str(uuid.uuid4()),
+        'version': 'V2',
+        'timestamp': int(round(time.time() * 1000))
+    }
 
-payload = {'message': json.dumps(request_json).encode('UTF-8')}
-headers = {
-    'X-OCR-SECRET': secret_key
-}
-def image_to_df(image_key):
+    payload = {'message': json.dumps(request_json).encode('UTF-8')}
+    headers = {
+        'X-OCR-SECRET': secret_key
+    }
+
     files = [
-        ('file', open(f'{OCR_DATA_DIR}/{image_key}.jpg', 'rb'))
+        ('file', open(f'{OCR_DATA_DIR}/{image_key}.{extension}', 'rb'))
     ]
 
     response = requests.post(api_url, headers=headers, files=files, data=payload)
@@ -51,10 +52,10 @@ def image_to_df(image_key):
 
     return df
 
-def image_figure(ocr_df, image_key):
-    image_path = f'{OCR_DATA_DIR}/{image_key}.jpg'
-    gray_image_path = f'{OCR_DATA_DIR}/{image_key}_gray.jpg'
-    result_image_path = f'{OCR_DATA_DIR}/{image_key}_result.jpg'
+def image_figure(ocr_df, image_key, extension):
+    image_path = f'{OCR_DATA_DIR}/{image_key}.{extension}'
+    gray_image_path = f'{OCR_DATA_DIR}/{image_key}_gray.{extension}'
+    result_image_path = f'{OCR_DATA_DIR}/{image_key}_result.{extension}'
 
     image = Image.open(image_path)
     gray_image = image.convert('L')

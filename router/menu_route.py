@@ -5,12 +5,12 @@ from dotenv import load_dotenv
 import pandas as pd
 
 load_dotenv()
-sys.path.append(r'../')
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from ksc_AI.models.image import Image
-from ksc_AI.utils.local_storage import connect_s3, upload_file_to_s3, download_file_from_s3
-from ksc_AI.utils.clova_ocr import image_to_df, image_figure, matching_menu
-from ksc_AI.config.chromadb import connect_db
+from data_models.image import Image
+from utils.local_storage import connect_s3, upload_file_to_s3, download_file_from_s3
+from utils.clova_ocr import image_to_df, image_figure, matching_menu
+from config.chromadb import connect_db
 
 menu_router = APIRouter()
 
@@ -40,15 +40,16 @@ async def ocr_upload(image: Image = Depends()):
     image = image.model_dump()
 
     image_key = image['key']
+    extension = image['extension']
     logger.info(f"Image key: {image_key}")
-    file_path = os.path.join(OCR_DATA_DIR, f'{image_key}.jpg')
-    result_path = os.path.join(OCR_DATA_DIR, f'{image_key}_result.jpg')
-    download_file_from_s3(s3, BUCKET_NAME, f'{before_dir}{image_key}.jpg', file_path)
-    ocr_df = image_to_df(image_key)
-    image_figure(ocr_df, image_key)
-    upload_file_to_s3(s3, BUCKET_NAME, result_path, f'{result_dir}{image_key}_result.jpg')
+    file_path = os.path.join(OCR_DATA_DIR, f'{image_key}.{extension}')
+    result_path = os.path.join(OCR_DATA_DIR, f'{image_key}_result.{extension}')
+    download_file_from_s3(s3, BUCKET_NAME, f'{before_dir}{image_key}.{extension}', file_path)
+    ocr_df = image_to_df(image_key, extension)
+    image_figure(ocr_df, image_key, extension)
+    upload_file_to_s3(s3, BUCKET_NAME, result_path, f'{result_dir}{image_key}_result.{extension}')
 
-    storage_path = f'{STORAGE_ENDPOINT}/{BUCKET_NAME}/{result_dir}{image_key}_result.jpg'
+    storage_path = f'{STORAGE_ENDPOINT}/{BUCKET_NAME}/{result_dir}{image_key}_result.{extension}'
     response = {
         "key": image_key,
         "result_path": storage_path
